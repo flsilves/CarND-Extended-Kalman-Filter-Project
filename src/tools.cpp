@@ -1,8 +1,9 @@
 #include "tools.h"
+
 #include <iostream>
 
-using Eigen::VectorXd;
 using Eigen::MatrixXd;
+using Eigen::VectorXd;
 using std::vector;
 
 Tools::Tools() {}
@@ -16,7 +17,7 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
    */
 }
 
-MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
+MatrixXd Tools::CalculateJacobian(const VectorXd &x_state) {
   /**
    * TODO:
    * Calculate a Jacobian here.
