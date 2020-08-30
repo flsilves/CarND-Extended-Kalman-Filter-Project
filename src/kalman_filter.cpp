@@ -1,5 +1,7 @@
 #include "kalman_filter.h"
 
+#include "tools.h"
+
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
@@ -23,19 +25,46 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 }
 
 void KalmanFilter::Predict() {
-  /**
-   * TODO: predict the state
-   */
+  x_ = F_ * x_;
+  MatrixXd Ft = F_.transpose();
+  P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-  /**
-   * TODO: update the state by using Kalman Filter equations
-   */
+  const MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+
+  // Predicted measurement error
+  const VectorXd z_pred = H_ * x_;
+  const VectorXd y = z - z_pred;
+
+  // Kalman Gain
+  const MatrixXd Ht = H_.transpose();
+  const MatrixXd S = H_ * P_ * Ht + R_;
+  const MatrixXd Si = S.inverse();
+  const MatrixXd PHt = P_ * Ht;
+  const MatrixXd K = PHt * Si;
+
+  // Update
+  x_ = x_ + (K * y);
+  P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-   * TODO: update the state by using Extended Kalman Filter equations
-   */
+  const MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+
+  // Predicted measurement error
+  const VectorXd z_pred = Tools::ConvertCartesianToPolarCoords(x_);
+  VectorXd y = z - z_pred;
+  y(1) = Tools::NormalizeAngle(y(1));
+
+  // Kalman Gain
+  const MatrixXd Ht = H_.transpose();
+  const MatrixXd S = H_ * P_ * Ht + R_;
+  const MatrixXd Si = S.inverse();
+  const MatrixXd PHt = P_ * Ht;
+  const MatrixXd K = PHt * Si;
+
+  // Update
+  x_ = x_ + (K * y);
+  P_ = (I - K * H_) * P_;
 }
